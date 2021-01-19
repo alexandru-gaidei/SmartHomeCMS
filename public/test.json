@@ -1,0 +1,12 @@
+{ 
+    "variables":{ 
+       "temperature":32.00,
+       "humidity":33.00,
+       "heatindex":24.42,
+       "relay":0
+    },
+    "id":"1",
+    "name":"Hall",
+    "hardware":"esp8266",
+    "connected":true
+ }

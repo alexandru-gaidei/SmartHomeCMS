@@ -1,0 +1,20 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+@import "toastr";
+
+/* Define an animation behavior */
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+  }
+  /* This is the class name given by the Font Awesome component when icon contains 'spinner' */
+  .fa-spinner {
+    /* Apply 'spinner' keyframes looping once every second (1s)  */
+    animation: spinner 1s linear infinite;
+  }

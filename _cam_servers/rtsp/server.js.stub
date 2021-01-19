@@ -1,0 +1,10 @@
+Stream = require('node-rtsp-stream')
+stream = new Stream({
+  name: 'name',
+  streamUrl: '{{url}}',
+  wsPort: {{port}},
+  ffmpegOptions: {
+    '-s': '1280x720',
+    '-r': 30
+  }
+})

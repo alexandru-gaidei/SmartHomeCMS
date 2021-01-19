@@ -1,0 +1,3 @@
+<template>
+  <p class="text-center">404 Not found</p>
+</template>

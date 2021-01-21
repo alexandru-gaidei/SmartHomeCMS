@@ -56,4 +56,11 @@ return [
 
     ],
 
+
+    'echo' => [
+        'scheme' => env('ECHO_SERVER_SCHEME', 'http://'),
+        'host' => env('ECHO_SERVER_HOST', '127.0.0.1'),
+        'port' => env('ECHO_SERVER_PORT', 6001),
+    ],
+
 ];

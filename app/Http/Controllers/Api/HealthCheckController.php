@@ -78,7 +78,7 @@ class HealthCheckController extends Controller
     {
         exec('ps aux | grep queue:work', $out);
         foreach($out as $line) {
-            if(strpos($line, 'php artisan queue:work') !== false) {
+            if(strpos($line, 'artisan queue:work') !== false) {
                 return true;
             }
         }
@@ -88,9 +88,9 @@ class HealthCheckController extends Controller
 
     private function getWebsocketServerStatus()
     {
-        $scheme = 'http://';
-        $host = '127.0.0.1';
-        $port = 6001;
+        $scheme = config('broadcasting.echo.scheme');
+        $host = config('broadcasting.echo.host');
+        $port = config('broadcasting.echo.port');
         $client = new Client(['base_uri' => "$scheme$host:$port"]);
         $response = $client->get('/socket.io/', ['query' => 'transport=polling']);
         $out = $response->getBody()->getContents();
@@ -113,7 +113,7 @@ class HealthCheckController extends Controller
 
     private function getFFMPEGStatus()
     {
-        exec(env('FFMPEG_PATH_BIN') . ' -version', $out);
+        exec(config('services.ffmpeg.bin_path') . ' -version', $out);
         foreach($out as $line) {
             if(strpos($line, 'libx264') !== false) {
                 return true;
@@ -149,7 +149,7 @@ class HealthCheckController extends Controller
         }
 
         try {
-            logger()->info('Health Check - ping');
+            logger()->info('Health Check - ping log file');
         }
         catch(\Exception $err) {
             return false;

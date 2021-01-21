@@ -37,7 +37,7 @@ trait VideoCamera
             -c:v libx264 -preset veryfast -filter:v scale="trunc(oh*a/2)*2:%s" -crf 26 -c:a aac \
             -threads 2 -r 10 %s/%%Y-%%m-%%d_%%H-%%M-%%S__%s.mp4 > /dev/null 2>&1 & echo $!',
 
-            env('FFMPEG_PATH_BIN'),
+            config('services.ffmpeg.bin_path'),
             $this->stream_url,
             $this->length,
             $this->size_height,
@@ -51,6 +51,7 @@ trait VideoCamera
             $this->pid = $pid;
             $this->save();
         } catch (Exception $err) {
+            logger()->error($command);
             logger()->error($err->getMessage());
             throw $err;
         }

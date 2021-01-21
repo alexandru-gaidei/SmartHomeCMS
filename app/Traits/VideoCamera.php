@@ -60,6 +60,7 @@ trait VideoCamera
 
         $pids = $this->processes();
         if (! in_array($pid, $pids)) {
+            logger()->error($command);
             throw new Exception('Cannot play, please verify availability of the stream.', 520);
         }
     }

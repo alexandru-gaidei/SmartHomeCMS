@@ -11,26 +11,6 @@ use Recurr\Transformer\TextTransformer;
 
 class SensorResource extends JsonResource
 {
-
-    /**
-     * @var
-     */
-    private $less_details;
-
-    /**
-     * Create a new resource instance.
-     *
-     * @param  mixed  $resource
-     * @return void
-     */
-    public function __construct($resource, $less_details = true)
-    {
-        parent::__construct($resource);
-        $this->resource = $resource;
-        
-        $this->less_details = $less_details;
-    }
-
     /**
      * Transform the resource into an array.
      *
@@ -64,33 +44,43 @@ class SensorResource extends JsonResource
             'actions' => $this->actions,
         ];
 
-        if (! $this->less_details) {
-            $rrule_freq = $rrule_interval = $rrule_human = null;
+        $rrule_freq = $rrule_interval = $rrule_human = null;
 
-            if (! empty($this->execute_at_rrule)) {
-                $rule = Rule::createFromString($this->execute_at_rrule);
-                $textTransformer = new TextTransformer();
-    
-                $rrule_freq = $rule->getFreqAsText();
-                $rrule_interval = $rule->getInterval();
-                $rrule_human = $textTransformer->transform($rule);
-            }
+        if (! empty($this->execute_at_rrule)) {
+            $rule = Rule::createFromString($this->execute_at_rrule);
+            $textTransformer = new TextTransformer();
 
-            $data['rrule_freq'] = $rrule_freq;
-            $data['rrule_interval'] = $rrule_interval;
-            $data['rrule_human'] = $rrule_human;
-
-            $history_chart = $this->history()->orderBy('ocurrence_at')
-                ->where('created_at', '>=', now()->subDays(History::CHART_DAYS_AGO))->get();
-
-            $data['history_last'] = $this->history()->orderBy('ocurrence_at', 'DESC')->take(10)->get();
-            $data['history_chart'] = [
-                'labels' => $history_chart->pluck('created_at')->map(function ($occurence) {
-                    return Carbon::parse($occurence)->format('d/m H:i');
-                })->toArray(),
-                'data' => $history_chart->pluck('value')->toArray(),
-            ];
+            $rrule_freq = $rule->getFreqAsText();
+            $rrule_interval = $rule->getInterval();
+            $rrule_human = $textTransformer->transform($rule);
         }
+
+        $data['rrule_freq'] = $rrule_freq;
+        $data['rrule_interval'] = $rrule_interval;
+        $data['rrule_human'] = $rrule_human;
+
+        $history_chart = $this->history()->select(['ocurrence_at', 'value'])->orderBy('ocurrence_at')
+            ->where('value' , '!=', '')
+            ->where('ocurrence_at', '>=', now()->subDays(History::CHART_DAYS_AGO))->get();
+
+        $data['history_last'] = $this->history()->orderBy('ocurrence_at', 'DESC')->take(10)->get();
+
+        $history_chart = $history_chart->map(function($h) {
+            $h->groupped_by = Carbon::parse($h->ocurrence_at)->format('Y-m-d H:00:00');
+            return $h;
+        })->groupBy('groupped_by')->map(function($value, $key) {
+            $obj = new \stdClass();
+            $obj->ocurrence_at = $key;
+            $obj->value = round($value->sum('value') / $value->count(), 1);
+            return $obj;
+        })->values();
+
+        $data['history_chart'] = [
+            'labels' => $history_chart->pluck('ocurrence_at')->map(function ($occurence) {
+                return Carbon::parse($occurence)->format('d/m H:i');
+            })->toArray(),
+            'data' => $history_chart->pluck('value')->toArray(),
+        ];
 
         return $data;
     }

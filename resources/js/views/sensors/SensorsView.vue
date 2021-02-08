@@ -1,5 +1,5 @@
 <template>
-    <div class="col-md-8 offset-md-2" v-if="this.app.user">
+    <div class="col-md-12" v-if="this.app.user">
         <error-message :error="error" v-if="error"></error-message>
 
         <router-link v-if="app.user.is_admin" class="btn btn-primary btn-sm float-left" :to="{ name: 'sensors.edit', params: { id: item.id } }">Edit</router-link>
@@ -113,6 +113,15 @@ export default {
                         pointBackgroundColor: "yellow",
                     }],
                 },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    }
+                }
             });
         }
     },
